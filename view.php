@@ -1,38 +1,17 @@
 <?php
     // connection with the database
-
     $con = mysqli_connect('localhost', 'root', '', 'display_data_embedded');
-    // if($con){
-    //     echo "Connection Done";
-    // }else{
-    //     echo "Connection Failed";
-    // }
 
-    $dataPointsGraph = array( 
-        array("y" => 3373.64, "label" => "Germany" ),
-        array("y" => 2435.94, "label" => "France" ),
-        array("y" => 1842.55, "label" => "China" ),
-        array("y" => 1828.55, "label" => "Russia" ),
-        array("y" => 1039.99, "label" => "Switzerland" ),
-        array("y" => 765.215, "label" => "Japan" ),
-        array("y" => 612.453, "label" => "Netherlands" )
-    );
+    $dataPointsGraph = [];
 
-    $dataPointsPie = array( 
-        array("label"=>"Oxygen", "symbol" => "O","y"=>46.6),
-        array("label"=>"Silicon", "symbol" => "Si","y"=>27.7),
-        array("label"=>"Aluminium", "symbol" => "Al","y"=>13.9),
-        array("label"=>"Iron", "symbol" => "Fe","y"=>5),
-        array("label"=>"Calcium", "symbol" => "Ca","y"=>3.6),
-        array("label"=>"Sodium", "symbol" => "Na","y"=>2.6),
-        array("label"=>"Magnesium", "symbol" => "Mg","y"=>2.1),
-        array("label"=>"Others", "symbol" => "Others","y"=>1.5),
-     
-    )
+    $sel = "SELECT * FROM iot";
+    $query = $con->query($sel);
+    
+    while($row=$query->fetch_assoc()){
+        array_push($dataPointsGraph,array("y"=>$row['temperature'],"symbol"=>$row['no'],"label"=>$row['name']));
+    }
 
-    // $sel = "SELECT * FROM animal_statistics";
-    // $query = $con->query($sel);
-    // while($row=$query->fetch_assoc()){
+   
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -55,14 +34,14 @@
             animationEnabled: true,
             theme: "light2",
             title:{
-                text: "Gold Reserves"
+                text: "Weekly analysis"
             },
             axisY: {
-                title: "Gold Reserves (in tonnes)"
+                title: "Temperature (°C)"
             },
             data: [{
                 type: "column",
-                yValueFormatString: "#,##0.## tonnes",
+                yValueFormatString: "#,##0.## °C",
                 dataPoints: <?php echo json_encode($dataPointsGraph, JSON_NUMERIC_CHECK); ?>
             }]
         });
@@ -71,7 +50,7 @@
             theme: "light2",
             animationEnabled: true,
             title: {
-                text: "Average Composition of Magma"
+                text: "Temperatures"
             },
             data: [{
                 type: "doughnut",
@@ -79,7 +58,7 @@
                 yValueFormatString: "#,##0.0\"%\"",
                 showInLegend: true,
                 legendText: "{label} : {y}",
-                dataPoints: <?php echo json_encode($dataPointsPie, JSON_NUMERIC_CHECK); ?>
+                dataPoints: <?php echo json_encode($dataPointsGraph, JSON_NUMERIC_CHECK); ?>
             }]
         });
 
@@ -112,11 +91,9 @@
             </div>
             <div class="presentation">
                 <div class="chart page" id="chart">
-                    <h2>Temperatures</h2>
                     <div id="chartPie"></div>
                 </div>
                 <div class="graph page" id="graph">
-                    <h2>Weekly Analysis</h2>
                     <div id='graphDiagram'></div>
                 </div>
                 <div class="tablepage page" id="tablepage">
@@ -127,59 +104,35 @@
                                 <tr>
                                     <th>No</th>
                                     <th>name</th>
-                                    <th>Distance (m)</th>
-                                    <th>Temperature (T)</th>
+                                    <th>Temperature (°C)</th>
+                                    <th>Date</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                <?php
+                                    $select = "SELECT * FROM iot";
+                                    $selQuery = $con->query($select);
+                                    while($row=$selQuery->fetch_assoc()){
+                                ?>
                                 <tr>
-                                    <td>01</td>
-                                    <td>Device-001</td>
-                                    <td>500</td>
-                                    <td>49</td>
+                                    <td><?php echo $row['no']?></td>
+                                    <td><?php echo $row['name']?></td>
+                                    <td><?php echo $row['temperature']?></td>
+                                    <td><?php echo $row['created_at']?></td>
                                     <td>
                                         <a href="" class="btn btn-success">Edit</a>
                                         <a href="" class="btn btn-danger">Delete</a>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>02</td>
-                                    <td>Device-002</td>
-                                    <td>250</td>
-                                    <td>27</td>
-                                    <td>
-                                        <a href="" class="btn btn-success">Edit</a>
-                                        <a href="" class="btn btn-danger">Delete</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>03</td>
-                                    <td>Device-003</td>
-                                    <td>700</td>
-                                    <td>52</td>
-                                    <td>
-                                        <a href="" class="btn btn-success">Edit</a>
-                                        <a href="" class="btn btn-danger">Delete</a>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>04</td>
-                                    <td>Device-004</td>
-                                    <td>1500</td>
-                                    <td>80</td>
-                                    <td>
-                                        <a href="" class="btn btn-success">Edit</a>
-                                        <a href="" class="btn btn-danger">Delete</a>
-                                    </td>
-                                </tr>
+                                <?php
+                                    }
+                                ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
-                <?php
-                    // }
-                ?>
+                
             </div>
         </div>
     </div>
